@@ -1,54 +1,27 @@
-import json
-import logging
-import re
-from http.server import BaseHTTPRequestHandler, HTTPServer
+import socket
+import threading
 
-class HTTPRequestHandler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        if re.search('/api/msg', self.path):
-            length = int(self.headers.get('content-length'))
-            data = self.rfile.read(length).decode('utf8')
-
-            try:
-                # Assuming data is a JSON-formatted string
-                data_dict = json.loads(data)
-
-                # Now you can access the values in the dictionary
-                message = data_dict.get('msg', 'Default Message')
-                print(f"Message: {message}")
-
-                self.send_response(200)
-            except json.JSONDecodeError:
-                self.send_response(400)
-        else:
-            self.send_response(403)
-        self.end_headers()
-
-    # def do_GET(self):
-    #     if re.search('/api/get/*', self.path):
-    #         record_id = self.path.split('/')[-1]
-    #         if record_id in LocalData.records:
-    #             self.send_response(200)
-    #             self.send_header('Content-Type', 'application/json')
-    #             self.end_headers()
-
-    #             # Return json, even though it came in as POST URL params
-    #             data = json.dumps(LocalData.records[record_id]).encode('utf-8')
-    #             logging.info("get record %s: %s", record_id, data)
-    #             self.wfile.write(data)
-
-    #         else:
-    #             self.send_response(404, 'Not Found: record does not exist')
-    #     else:
-    #         self.send_response(403)
-    #     self.end_headers()
+def job(conn, addr):
+    with open('certificates/server_http.cert.pem', 'r') as cert_file:
+        cert = cert_file.read()
+    try:
+        conn.sendall(cert.encode(encoding='UTF-8',errors='strict'))
+    finally:
+        cert_file.close()
+    data = conn.recv(1024)
+    if not data:
+        conn.close()
+        return
+    
+    print(data.decode(encoding='UTF-8',errors='strict'))
+    conn.close()
 
 if __name__ == '__main__':
-    server = HTTPServer(('localhost', 8000), HTTPRequestHandler)
-    print('Starting server')
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    server.server_close()
-    print('Stopping server')
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('localhost', 9999))
+    s.listen(3)
+
+    while True:
+        conn, addr = s.accept()
+        t = threading.Thread(target=job, args=(conn,addr,))
+        t.start()
