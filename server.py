@@ -2,7 +2,7 @@ import socket
 import threading
 
 def job(conn, addr):
-    with open('certificates/server_http.cert.pem', 'r') as cert_file:
+    with open('certificates/serveur_http.cert.pem', 'r') as cert_file:
         cert = cert_file.read()
     try:
         conn.sendall(cert.encode(encoding='UTF-8',errors='strict'))
