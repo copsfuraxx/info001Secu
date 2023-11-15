@@ -32,6 +32,8 @@ Pour déchiffrer ce message, c'est l'inverse M = C<sup>d</sup>mod n
 - Le navigateur récupère la clé publique du site `alice.com` et envoie un message random généré au site, étant encrypté par la clé publique
 - Le serveur d'`alice.com` décrypte le message random
 
+<div style="page-break-after: always;"></div>
+
 ## Question 5
 
 Création d'une clé avec une taille 512 bits
@@ -67,6 +69,8 @@ C'est intéressant quand on veut la partager, pour la partager uniquement elle, 
 
 Si l'on veut envoyer un message de manière confidentielle, il faut chiffrer ce message avec la clé publique, parce que seulement l'émetteur de la clé publique pourra déchiffrer ce message. Alors que dans le cas inverse, si l'on chiffre une donnée avec la clé privée, tout le monde pourra déchiffrer ce message.
 
+<div style="page-break-after: always;"></div>
+
 ## Question 10
 
 Cette commande permet d'encrypter un message contenu dans un TXT
@@ -99,6 +103,8 @@ openssl pkeyutl -decrypt -inkey rsa_keys_cyphered.pem -in cipher.finck.bin -out 
 L'option `-showcerts` permet d'afficher les certificats hébergés par le serveur.
 
 3 Certificats ont été renvoyés par le serveur.
+
+<div style="page-break-after: always;"></div>
 
 ## Question 13
 
@@ -138,6 +144,8 @@ Le certificat est valide du `May  8 00:00:00 2023` au ` May  7 23:59:59 2024`, a
 
 Le fichier `crl` est la liste des certificats révoquée par l'entité ayant certifié des certificats.
 
+<div style="page-break-after: always;"></div>
+
 On peut voir son contenu en utilisant la commande 
 ```shell
 openssl crl -in crlfile.crl -inform DER -text -noout
@@ -172,6 +180,8 @@ Pour le certificat `Sectigo Limited`, on voit bien qu'il possède les mêmes inf
 Pour le certificat `The USERTRUST Network`, on voit bien qu'il possède les mêmes informations que la CA ayant certifié `Sectigo Limited`. Il possède le même nom que le certificat CA de `Sectigo Limited`.
 
 Le certificat permettant de valider ce certificat est celui qui est en dernier, c'est le certificat racine, il est généralement stocké dans l'OS, ou bien dans le navigateur.
+
+<div style="page-break-after: always;"></div>
 
 ## Question 19
 
@@ -212,6 +222,8 @@ La clé privée devra être dans le dossier `private` sous le nom de `intermedia
 
 Le certificat devra être dans le dossier `certs` sous le nom de `intermediate.cert.pem`
 
+<div style="page-break-after: always;"></div>
+
 ## Question 22
 
 Voici la commande permettant de créer la clé :
@@ -243,6 +255,8 @@ sudo openssl req -new -key /etc/pki/tls/private/serveur_http.pem -out serveur_ht
 ```shell
 openssl ca -config openssl.cnf -extensions server_cert -days 375 -notext -md sha256 -in csr/serveur_http.csr.pem -out certs/serveur_http.cert.pem
 ```
+
+<div style="page-break-after: always;"></div>
 
 ```conf
 events {}
@@ -280,6 +294,7 @@ Petit ajout : après avoir rencontré un problème pour notre certificat mal gé
 
 Pour ajouter un CA de confiance, on ajoute le certificat dans le dossier `/etc/pki/ca-trust/source/anchors/` et on effectue la commande `update-ca-trust`
 
+
 ## Question 25
 
 Nous avons ajouté cette information :
@@ -287,12 +302,11 @@ Nous avons ajouté cette information :
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 www.depoisier.fr
 ```
 
+<div style="page-break-after: always;"></div>
+
 ## Question 26
 
-[Voici le lien du repo Github](https://github.com/copsfuraxx/info001Secu)
-```
-https://github.com/copsfuraxx/info001Secu
-```
+[Voici le lien du repo GitHub](https://github.com/copsfuraxx/info001Secu) : https://github.com/copsfuraxx/info001Secu
 
 Pour tester l'application, il faut ajouter dans les host de son serveur, les différents host différent comme alias de `127.0.0.1` :
 - `www.depoisier.fr`
@@ -313,20 +327,20 @@ Et le client avec la commande
 python3 client.py
 ```
 
-Le client demande un serveur, vous pouvez utiliser les 3 serveurs ajoutés en alias de localhost.
+Le client demande un serveur, vous pouvez utiliser les trois serveurs ajoutés en alias de localhost.
 
 Quand le client a envoyé son message au serveur, le serveur se ferme.
 
 ## Question 27
 
-Le navigateur nous affiche deux erreur, la première `ERR_CERT_AUTHORITY_INVALID` nous indique que l'authorité ayant délivré le certificat n'est pas de confiance.
+Le navigateur nous affiche deux erreurs, la première `ERR_CERT_AUTHORITY_INVALID` nous indique que l'autorité ayant délivré le certificat n'est pas de confiance.
 
-La seconde erreur `SSL_ERROR_BAD_CERT_DOMAIN`, nous indique que le nom du serveur n'est pas celui indiqué dans le certificat.
+La seconde erreur, `SSL_ERROR_BAD_CERT_DOMAIN`, nous indique que le nom du serveur n'est pas celui indiqué dans le certificat.
 
-La première erreur a pu être corrigé en ajoutant dans le magasin de certificat de Firefox le certificat root-ca-lorne.
+La première erreur a pu être corrigée en ajoutant dans le magasin de certificat de Firefox le certificat root-ca-lorne.
 
 ## Question 28
 
-C'est pour avoir une sécurité renforcé, étant donné que la CA expose moins sa clé privée.
+C'est pour avoir une sécurité renforcée, étant donné que la CA expose moins sa clé privée.
 
 Il y a plus de détails à la réponse de cette question dans la question 24.
