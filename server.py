@@ -1,13 +1,8 @@
 import socket
+import ssl
 import threading
 
 def job(conn, addr):
-    with open('certificates/serveur_http.cert.pem', 'r') as cert_file:
-        cert = cert_file.read()
-    try:
-        conn.sendall(cert.encode(encoding='UTF-8',errors='strict'))
-    finally:
-        cert_file.close()
     data = conn.recv(1024)
     if not data:
         conn.close()
@@ -17,11 +12,13 @@ def job(conn, addr):
     conn.close()
 
 if __name__ == '__main__':
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('localhost', 9999))
-    s.listen(3)
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain('certificates/serveur_http.cert.pem', 'certificates/serveur_http.pem')
 
-    while True:
-        conn, addr = s.accept()
-        t = threading.Thread(target=job, args=(conn,addr,))
-        t.start()
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
+        sock.bind(('localhost', 8888))
+        sock.listen(5)
+        with context.wrap_socket(sock, server_side=True) as ssock:
+            conn, addr = ssock.accept()
+            t = threading.Thread(target=job, args=(conn,addr,))
+            t.start()

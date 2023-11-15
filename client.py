@@ -1,17 +1,32 @@
 import socket
+import ssl
 
 def verify_certificate(cert_string, hostname):
-    pass
+    # Obtain the peer certificate
+    cert = ssock.getpeercert()
+
+    # Extract the subject and verify it matches the expected hostname
+    subject = dict(x[0] for x in cert['subject'])
+    common_name = subject.get('commonName', '')
+    
+    if common_name == hostname:
+        print("Certificate verification successful. Domain matches.")
+        return True
+    else:
+        print(f"Certificate verification failed. Expected: {hostname}, Actual: {common_name}")
+        return False
 
 if __name__ == '__main__':
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # s.connect(('www.depoisier.fr', 9999))
-    s.connect(('localhost', 9999))
-    certificat = s.recv(4096)
-    if not verify_certificate(certificat, 'www.depoisier.fr'):
-        s.close()
-        pass
-    print(certificat)
-    msg = input("Message : ")
-    s.sendall(msg.encode(encoding='UTF-8',errors='strict'))
-    s.close()
+    hostname = input('Adresse du serveur : ')
+    # PROTOCOL_TLS_CLIENT requires valid cert chain and hostname
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    context.load_verify_locations('certificates/root-ca-lorne.pem')
+
+    with socket.create_connection((hostname, 8888)) as sock:
+        with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+            ssock.do_handshake()
+            if verify_certificate(ssock, hostname):
+                msg = input("Message : ")
+                ssock.sendall(msg.encode(encoding='UTF-8',errors='strict'))
+            ssock.close()
+    
